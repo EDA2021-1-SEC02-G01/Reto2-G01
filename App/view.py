@@ -34,10 +34,28 @@ se hace la solicitud al controlador para ejecutar la
 operación solicitada
 """
 
+
 def printMenu():
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
-    print("2- ")
+    print("2- los n videos con más LIKES para el" +
+          " nombre de una categoría específica")
+
+
+def initCatalog():
+    """
+    Inicializa el catalogo de libros
+    """
+    return controller.initCatalog()
+
+
+def loadData(catalog):
+    """
+    Carga los libros en la estructura de datos
+    """
+    categorias = controller.loadData(catalog)
+    return categorias
+
 
 catalog = None
 
@@ -49,10 +67,42 @@ while True:
     inputs = input('Seleccione una opción para continuar\n')
     if int(inputs[0]) == 1:
         print("Cargando información de los archivos ....")
-
+        catalog = initCatalog()
+        categorias = loadData(catalog)
+        print('Videos cargados: ' + str(lt.size(catalog['videos'])))
+        print('Categorias cargadas: ' + str(lt.size(catalog['categories'])))
+        first_video = lt.firstElement(catalog['videos'])
+        print('Titulo: ' + first_video['title'] +
+              ', Canal: ' + first_video['channel_title'] +
+              ', Dia de trending: ' + first_video['trending_date'] +
+              ', Pais: ' + first_video['country'] +
+              ', Vistas: ' + first_video['views'] +
+              ', Me gusta: ' + first_video['likes'] +
+              ', No me gusta: ' + first_video['dislikes']
+              )
+        print("\n")
+        print(categorias)
     elif int(inputs[0]) == 2:
-        pass
-
+        categoryName = input("Ingrese el nombre de la categoria:").title()
+        nVideos = int(input("Ingrese el top de videos que desea: "))
+        categoryId = categorias[categoryName]
+        category = controller.getCategoryById(catalog, categoryId)
+        sortedVids = controller.sortVideosByViews(category["videos"])
+        i = 1
+        while i <= nVideos:
+            video = lt.getElement(sortedVids, i)
+            print("#" + str(i))
+            print('Titulo: ' + video['title'] +
+                  ', Canal: ' + video['channel_title'] +
+                  ', Id de categoria: ' + video['category_id'] +
+                  ', Dia de trending: ' + video['trending_date'] +
+                  ', Pais: ' + video['country'] +
+                  ', Vistas: ' + video['views'] +
+                  ', Me gusta: ' + video['likes'] +
+                  ', No me gusta: ' + video['dislikes']
+                  )
+            print("\n")
+            i += 1
     else:
         sys.exit(0)
 sys.exit(0)
