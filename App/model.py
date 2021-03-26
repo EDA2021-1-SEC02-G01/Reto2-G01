@@ -44,7 +44,8 @@ def newCatalog():
     catalog = {'videos': None,
                'categories': None,
                'countries': None,
-               'video_tags': None}
+               'video_tags': None,
+               'category_ids': None}
 
     catalog['videos'] = lt.newList('ARRAY_LIST')
     """
@@ -54,6 +55,14 @@ def newCatalog():
                                       maptype='PROBING',
                                       loadfactor=0.5,
                                       comparefunction=cmpCategoriesById)
+    """
+    Este indice crea un map cuya llave es el nombre de la categoria
+    del video y su valor es el id del video
+    """
+    catalog['category_ids'] = mp.newMap(67,
+                                        maptype='PROBING',
+                                        loadfactor=0.5,
+                                        comparefunction=cmpCategoriesByName)
 
     return catalog
 
@@ -103,12 +112,14 @@ def addCategory(catalog, category):
     Adiciona una categoría a la lista de categorías
     """
     categories = catalog['categories']
-    categoryName = category['name']
+    category_ids = catalog['category_ids']
+    categoryName = category['name'].strip()
     categoryId = int(category['id'])
     existCategory = mp.contains(categories, categoryId)
     if not existCategory:
         c = newCategory(categoryId, categoryName)
         mp.put(categories, categoryId, c)
+        mp.put(category_ids, categoryName, categoryId)
 
 
 # Funciones para creacion de datos
@@ -130,8 +141,8 @@ def newCategory(id, name):
 # Funciones de consulta
 
 def getCategoryById(catalog, categoryId):
-    existsCategory = mp.contains(catalog["categories"], categoryId)
-    if existsCategory:
+    categoryExists = mp.contains(catalog["categories"], categoryId)
+    if categoryExists:
         entry = mp.get(catalog["categories"], categoryId)
         category = me.getValue(entry)
     else:
@@ -139,10 +150,26 @@ def getCategoryById(catalog, categoryId):
     return category
 
 
+def getCategoryByName(catalog, categoryName):
+    categoryExists = mp.contains(catalog['category_ids'], categoryName)
+    if categoryExists:
+        entry = mp.get(catalog["category_ids"], categoryName)
+        categoryId = me.getValue(entry)
+    else:
+        categoryId = None
+    return categoryId
+
+
 # Funciones utilizadas para comparar elementos dentro de una lista
 
 def cmpCategoriesById(categoryId, category):
     if int(categoryId) == int(category['value']['category_id']):
+        return 0
+    return -1
+
+
+def cmpCategoriesByName(categoryName, categoryEntry):
+    if categoryName.lower() == categoryEntry['key'].lower():
         return 0
     return -1
 

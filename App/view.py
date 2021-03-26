@@ -68,9 +68,10 @@ while True:
     if int(inputs[0]) == 1:
         print("Cargando información de los archivos ....")
         catalog = initCatalog()
-        categorias = loadData(catalog)
+        answer = loadData(catalog)
         print('Videos cargados: ' + str(lt.size(catalog['videos'])))
         print('Categorias cargadas: ' + str(lt.size(catalog['categories'])))
+        print('lista categorias: ' + str(lt.size(catalog['category_ids'])))
         first_video = lt.firstElement(catalog['videos'])
         print('Titulo: ' + first_video['title'] +
               ', Canal: ' + first_video['channel_title'] +
@@ -80,29 +81,34 @@ while True:
               ', Me gusta: ' + first_video['likes'] +
               ', No me gusta: ' + first_video['dislikes']
               )
+        print("Tiempo [ms]: ", f"{answer[0]:.3f}", "  ||  ",
+              "Memoria [kB]: ", f"{answer[1]:.3f}")
         print("\n")
-        print(categorias)
     elif int(inputs[0]) == 2:
-        categoryName = input("Ingrese el nombre de la categoria:").title()
+        categoryName = input("Ingrese el nombre de la categoria: ").title()
         nVideos = int(input("Ingrese el top de videos que desea: "))
-        categoryId = categorias[categoryName]
-        category = controller.getCategoryById(catalog, categoryId)
-        sortedVids = controller.sortVideosByViews(category["videos"])
-        i = 1
-        while i <= nVideos:
-            video = lt.getElement(sortedVids, i)
-            print("#" + str(i))
-            print('Titulo: ' + video['title'] +
-                  ', Canal: ' + video['channel_title'] +
-                  ', Id de categoria: ' + video['category_id'] +
-                  ', Dia de trending: ' + video['trending_date'] +
-                  ', Pais: ' + video['country'] +
-                  ', Vistas: ' + video['views'] +
-                  ', Me gusta: ' + video['likes'] +
-                  ', No me gusta: ' + video['dislikes']
-                  )
-            print("\n")
-            i += 1
+        categoryId = controller.getCategoryByName(catalog, categoryName)
+        if categoryId is None:
+            print(f"La categoria {categoryName} no existe")
+        else:
+            category = controller.getCategoryById(catalog, categoryId)
+            sortedVids = controller.sortVideosByViews(category["videos"])
+            i = 1
+            print(sortedVids)
+            while i <= nVideos:
+                video = lt.getElement(sortedVids, i)
+                print("#" + str(i))
+                print('Titulo: ' + video['title'] +
+                      ', Canal: ' + video['channel_title'] +
+                      ', Id de categoria: ' + video['category_id'] +
+                      ', Dia de trending: ' + video['trending_date'] +
+                      ', Pais: ' + video['country'] +
+                      ', Vistas: ' + video['views'] +
+                      ', Me gusta: ' + video['likes'] +
+                      ', No me gusta: ' + video['dislikes']
+                      )
+                print("\n")
+                i += 1
     else:
         sys.exit(0)
 sys.exit(0)
