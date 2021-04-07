@@ -52,8 +52,8 @@ def newCatalog():
     Este indice crea un map cuya llave es la categoria del video
     """
     catalog['categories'] = mp.newMap(67,
-                                      maptype='PROBING',
-                                      loadfactor=0.5,
+                                      maptype='CHAINING',
+                                      loadfactor=6.0,
                                       comparefunction=cmpCategoriesById)
     """
     Este indice crea un map cuya llave es el nombre de la categoria
@@ -61,7 +61,7 @@ def newCatalog():
     """
     catalog['category_ids'] = mp.newMap(67,
                                         maptype='PROBING',
-                                        loadfactor=0.5,
+                                        loadfactor=0.3,
                                         comparefunction=cmpCategoriesByName)
 
     return catalog

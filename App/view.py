@@ -94,7 +94,6 @@ while True:
             category = controller.getCategoryById(catalog, categoryId)
             sortedVids = controller.sortVideosByViews(category["videos"])
             i = 1
-            print(sortedVids)
             while i <= nVideos:
                 video = lt.getElement(sortedVids, i)
                 print("#" + str(i))
