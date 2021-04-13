@@ -80,7 +80,7 @@ def loadVideos(catalog):
     """
     Carga los videos del archivo.
     """
-    videosfile = cf.data_dir + 'videos/videos-small.csv'
+    videosfile = cf.data_dir + 'videos/videos-large.csv'
     input_file = csv.DictReader(open(videosfile, encoding="utf-8"))
     for video in input_file:
         model.addVideo(catalog, video)
@@ -101,6 +101,10 @@ def categoryId(catalog):
 
 def sortVideosByViews(videos):
     return model.sortVideosByViews(videos)
+
+
+def sortCountry(catalog, category_name, country_name):
+    return model.sortCountry(catalog, category_name, country_name)
 
 
 # Funciones de consulta sobre el catálogo

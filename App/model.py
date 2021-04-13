@@ -68,6 +68,7 @@ def newCatalog(LoadFactor, TypeMap):
 
 
 # Funciones para agregar informacion al catalogo
+
 def addVideo(catalog, video):
     # Filtramos la informacion del video con lo que necesitamos
     filtrado = {'video_id': video['video_id'].strip(),
@@ -150,7 +151,7 @@ def getCategoryById(catalog, categoryId):
     return category
 
 
-def getCategoryByName(catalog, categoryName):
+def getCategoryIdByName(catalog, categoryName):
     categoryExists = mp.contains(catalog['category_ids'], categoryName)
     if categoryExists:
         entry = mp.get(catalog["category_ids"], categoryName)
@@ -158,6 +159,15 @@ def getCategoryByName(catalog, categoryName):
     else:
         categoryId = None
     return categoryId
+
+
+def getVideosByCategory(catalog, categoryName):
+    idVideo = getCategoryIdByName(catalog, categoryName)
+    if idVideo != None:
+        category = getCategoryById(catalog, idVideo)
+        videos = category['videos']
+        return videos
+    return None
 
 
 # Funciones utilizadas para comparar elementos dentro de una lista
@@ -190,3 +200,14 @@ def cmpVideosByViews(video1, video2):
 def sortVideosByViews(videos):
     sorted_list = mg.sort(videos, cmpVideosByViews)
     return sorted_list
+
+
+def sortCountry(catalog, category_name, country_name):
+    videosByCategory = getVideosByCategory(catalog, category_name)
+    country_list = lt.newList('ARRAY_LIST')
+    if videosByCategory is not None:
+        for video in lt.iterator(videosByCategory):
+            if country_name.lower() == video['country'].lower():
+                lt.addLast(country_list, video)
+        return country_list
+    return None

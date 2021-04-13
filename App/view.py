@@ -38,8 +38,9 @@ operación solicitada
 def printMenu():
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
-    print("2- los n videos con más LIKES para el" +
-          " nombre de una categoría específica")
+    print("2- Los n videos con más LIKES en un pais" +
+          " una categoría específica")
+    print("0- Salir")
 
 
 def initCatalog(LoadFactor, TypeMap):
@@ -87,14 +88,14 @@ while True:
               "Memoria [kB]: ", f"{answer[1]:.3f}")
         print("\n")
     elif int(inputs[0]) == 2:
-        categoryName = input("Ingrese el nombre de la categoria: ").title()
+        category_name = input("Ingrese el nombre de la categoria: ").title()
+        country_name = input("Ingrese el nombre del pais: ")
         nVideos = int(input("Ingrese el top de videos que desea: "))
-        categoryId = controller.getCategoryByName(catalog, categoryName)
-        if categoryId is None:
-            print(f"La categoria {categoryName} no existe")
+        listCountryCat = controller.sortCountry(catalog, category_name, country_name)
+        if listCountryCat is None:
+            print(f"El pais {country_name} no existe")
         else:
-            category = controller.getCategoryById(catalog, categoryId)
-            sortedVids = controller.sortVideosByViews(category["videos"])
+            sortedVids = controller.sortVideosByViews(listCountryCat)
             i = 1
             while i <= nVideos:
                 video = lt.getElement(sortedVids, i)
