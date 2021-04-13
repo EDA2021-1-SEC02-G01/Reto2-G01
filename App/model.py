@@ -34,7 +34,7 @@ assert cf
 
 
 # Construccion de modelos
-def newCatalog():
+def newCatalog(LoadFactor, TypeMap):
     """
     Inicializa el catálogo de libros. Crea una lista vacia para guardar
     todos los libros, adicionalmente, crea una lista vacia para los autores,
@@ -52,16 +52,16 @@ def newCatalog():
     Este indice crea un map cuya llave es la categoria del video
     """
     catalog['categories'] = mp.newMap(67,
-                                      maptype='CHAINING',
-                                      loadfactor=6.0,
+                                      maptype=TypeMap,
+                                      loadfactor=LoadFactor,
                                       comparefunction=cmpCategoriesById)
     """
     Este indice crea un map cuya llave es el nombre de la categoria
     del video y su valor es el id del video
     """
     catalog['category_ids'] = mp.newMap(67,
-                                        maptype='PROBING',
-                                        loadfactor=0.3,
+                                        maptype=TypeMap,
+                                        loadfactor=LoadFactor,
                                         comparefunction=cmpCategoriesByName)
 
     return catalog

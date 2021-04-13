@@ -42,11 +42,11 @@ def printMenu():
           " nombre de una categoría específica")
 
 
-def initCatalog():
+def initCatalog(LoadFactor, TypeMap):
     """
     Inicializa el catalogo de libros
     """
-    return controller.initCatalog()
+    return controller.initCatalog(LoadFactor, TypeMap)
 
 
 def loadData(catalog):
@@ -67,7 +67,9 @@ while True:
     inputs = input('Seleccione una opción para continuar\n')
     if int(inputs[0]) == 1:
         print("Cargando información de los archivos ....")
-        catalog = initCatalog()
+        LoadFactor = float(input("Ingrese el factor de carga con el que quiere cargar los videos: "))
+        TypeMap = input("Ingrese el tipo de mapa con el que quiere cargar los datos: ")
+        catalog = initCatalog(LoadFactor, TypeMap)
         answer = loadData(catalog)
         print('Videos cargados: ' + str(lt.size(catalog['videos'])))
         print('Categorias cargadas: ' + str(lt.size(catalog['categories'])))
