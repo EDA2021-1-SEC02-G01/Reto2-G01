@@ -44,7 +44,7 @@ def newCatalog(LoadFactor, TypeMap):
     catalog = {'videos': None,
                'categories': None,
                'countries': None,
-               'video_tags': None,
+               'tags': None,
                'category_ids': None}
 
     catalog['videos'] = lt.newList('ARRAY_LIST')
@@ -70,6 +70,7 @@ def newCatalog(LoadFactor, TypeMap):
                                      maptype=TypeMap,
                                      loadfactor=LoadFactor,
                                      comparefunction=cmpCategoriesByName)
+
     return catalog
 
 
@@ -86,7 +87,7 @@ def addVideo(catalog, video):
                 'likes': video['likes'].strip(),
                 'dislikes': video['dislikes'].strip(),
                 'country': video['country'].strip().title(),
-                'tags': video['tags'].strip(),
+                'tags': video['tags'].strip().lower(),
                 'category_id': video['category_id'].strip()}
     # Se adiciona el video a la lista de videos
     lt.addLast(catalog['videos'], filtrado)
@@ -205,6 +206,14 @@ def getTrendVidByCategory(catalog, category_name):
     return None
 
 
+def filterByCountry(videoList, country_name):
+    country_list = lt.newList('ARRAY_LIST')
+    for video in lt.iterator(videoList):
+        if country_name.lower() == video['country'].lower():
+            lt.addLast(country_list, video)
+    return country_list
+
+
 def getCategoryById(catalog, categoryId):
     categoryExists = mp.contains(catalog["categories"], categoryId)
     if categoryExists:
@@ -232,7 +241,22 @@ def getVideosByCategory(catalog, categoryName):
         videos = category['videos']
         return videos
     return None
+    
 
+def getVidsByCountry(catalog, country_name):
+    entry = mp.get(catalog['countries'], country_name)
+    country_list = me.getValue(entry)
+    return country_list
+
+
+def getVidsByTag(country_list, tag_name):
+    tag_list = lt.newList('ARRAY_LIST')
+    for video in lt.iterator(country_list):
+        lista = video['tags'].lower()
+        if tag_name.lower() in lista:
+            lt.addLast(tag_list, video)
+    return tag_list
+    
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 
@@ -283,6 +307,14 @@ def cmpVideosByTitle(video1, video2):
     return video1['title'] < video2['title']
 
 
+def cmpTags(video1, video2):
+    return video1['tags'] < video2['tags']
+
+
+def cmpLikes(video1, video2):
+    return int(video1['likes']) > int(video2['likes'])
+
+
 # Funciones de ordenamiento
 
 def sortVideosByViews(videos):
@@ -290,7 +322,15 @@ def sortVideosByViews(videos):
     return sorted_list
 
 
+def sortVideosByLikes(videos):
+    sorted_list = mg.sort(videos, cmpLikes)
+    return sorted_list
+
+
 def sortCountry(catalog, category_name, country_name):
+    """
+    Req. 1
+    """
     videosByCategory = getVideosByCategory(catalog, category_name)
     country_list = lt.newList('ARRAY_LIST')
     if videosByCategory is not None:
@@ -299,3 +339,4 @@ def sortCountry(catalog, category_name, country_name):
                 lt.addLast(country_list, video)
         return country_list
     return None
+

@@ -132,6 +132,35 @@ def getTrendVidByCategory(catalog, category_name):
     """
     return model.getTrendVidByCategory(catalog, category_name)
 
+
+def getVidsByCountry(catalog, country_name):
+    """
+    Retorn una lista con todos los videos del pais
+    que se busca
+    """
+    return model.getVidsByCountry(catalog, country_name)
+
+
+def filterByCountry(videoList, country_name):
+    """
+    Filtra la lista que contiene el pais buscado
+    """
+    return model.filterByCountry(videoList, country_name)
+
+
+def getVidsByTag(videosList, tag_name):
+    """
+    Filtra los videos que contengan un tag especifico
+    """
+    return model.getVidsByTag(videosList, tag_name)
+
+def sortVideosByLikes(videosList):
+    """
+    Ordena la lista de videos por likes
+    """
+    return model.sortVideosByLikes(videosList)
+
+
 # ======================================
 # Funciones para medir tiempo y memoria
 # ======================================

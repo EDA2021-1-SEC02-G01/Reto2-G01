@@ -38,11 +38,14 @@ operación solicitada
 def printMenu():
     print("Bienvenido")
     print("0- Cargar información en el catálogo")
-    print("1- Los n videos con más LIKES en un pais" +
+    print("1- (REQ 1) Los n videos con más LIKES en un pais" +
           " una categoría específica")
-    print("2- (REQ 2)")
-    print("3- (REQ 3)")
-    print("4- (REQ 4)")
+    print("2- (REQ 2) El video que mas ha sido trending un" + 
+          "pais especifico")
+    print("3- (REQ 3) El video que mas ha sido trending en" +
+          " una categoría especifica")
+    print("4- (REQ 4) Los n videos con mas LIEKS dado un pais" +
+          " y un tag especifico")
     print("5- Salir")
 
 
@@ -142,6 +145,27 @@ while True:
         else:
             print(f"La categoria {category_name}" +
                   " no se encontró en el catálogo")
+    elif int(inputs[0]) == 4:
+        tag_name = input("Ingrese el nombre del 'tag': ")
+        country_name = input("Ingrese el nombre del pais: ")
+        n_videos =  int(input("Ingrese el numero top de videos que desea: "))
+        videosByCountry = controller.getVidsByCountry(catalog, country_name)
+        if videosByCountry is not None:
+            videosByTag = controller.getVidsByTag(videosByCountry, tag_name)
+            videosByViews = controller.sortVideosByLikes(videosByTag)
+            counter = 1
+        while counter <= n_videos:
+            video = lt.getElement(videosByViews, counter)
+            print('\n' +
+                  'title: ' + video['title'],
+                  'channel_title: ' + video['channel_title'],
+                  'publish_time: ' + video['publish_time'],
+                  'views: ' + video['views'],
+                  'likes: ' + video['likes'],
+                  'dislikes: ' + video['dislikes'],
+                  'tags: ' + video['tags'] + '/n'
+                  )
+            counter += 1
     else:
         sys.exit(0)
 sys.exit(0)
