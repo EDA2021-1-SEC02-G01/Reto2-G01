@@ -107,6 +107,10 @@ def sortCountry(catalog, category_name, country_name):
     return model.sortCountry(catalog, category_name, country_name)
 
 
+def videoUniques(videos):
+    return model.videoUniques(videos)
+
+
 # Funciones de consulta sobre el catálogo
 
 def getCategoryById(catalog, categoryId):
@@ -153,6 +157,7 @@ def getVidsByTag(videosList, tag_name):
     Filtra los videos que contengan un tag especifico
     """
     return model.getVidsByTag(videosList, tag_name)
+
 
 def sortVideosByLikes(videosList):
     """

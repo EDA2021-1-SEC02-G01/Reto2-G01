@@ -40,11 +40,11 @@ def printMenu():
     print("0- Cargar información en el catálogo")
     print("1- (REQ 1) Los n videos con más LIKES en un pais" +
           " una categoría específica")
-    print("2- (REQ 2) El video que mas ha sido trending un" + 
-          "pais especifico")
+    print("2- (REQ 2) El video que mas ha sido trending un" +
+          " pais especifico")
     print("3- (REQ 3) El video que mas ha sido trending en" +
           " una categoría especifica")
-    print("4- (REQ 4) Los n videos con mas LIEKS dado un pais" +
+    print("4- (REQ 4) Los n videos con mas LIKES dado un pais" +
           " y un tag especifico")
     print("5- Salir")
 
@@ -125,47 +125,53 @@ while True:
     elif int(inputs[0]) == 2:
         country_name = input("Ingrese el nombre del pais: ").title()
         trendVid = controller.getTrendVidByCountry(catalog,
-                                                   country_name).title()
-        trendInfo = trendVid['info']
-        cuenta = trendVid['cuenta']
-        print("Title: " + trendInfo['title'])
-        print("Channel Title" + trendInfo['channel_title'])
-        print("Country: " + trendInfo['country'])
-        print("Numero de dias en tendencia: " + str(cuenta))
+                                                   country_name)
+        if trendVid is None:
+            print(f"El pais {country_name} no fue encontrado")
+        else:
+            trendInfo, cuenta = trendVid
+            print("Title: " + trendInfo['title'] + ",",
+                  "Channel Title" + trendInfo['channel_title'] + ",",
+                  "Country: " + trendInfo['country'] + ",",
+                  "Numero de dias en tendencia: " + str(cuenta))
     elif int(inputs[0]) == 3:
         category_name = input("Ingrese el nombre de la categoria: ").title()
         trendVid = controller.getTrendVidByCategory(catalog, category_name)
-        if trendVid is not None:
-            trendInfo = trendVid['info']
-            cuenta = trendVid['cuenta']
-            print("Title: " + trendInfo['title'])
-            print("Channel Title" + trendInfo['channel_title'])
-            print("Country: " + trendInfo['category_id'])
-            print("Numero de dias en tendencia: " + str(cuenta))
-        else:
+        if trendVid is None:
             print(f"La categoria {category_name}" +
                   " no se encontró en el catálogo")
+        else:
+            trendInfo, cuenta = trendVid
+            print("Title: " + trendInfo['title'] + ",",
+                  "Channel Title" + trendInfo['channel_title'] + ",",
+                  "Category: " + trendInfo['category_id'] + ",",
+                  "Numero de dias en tendencia: " + str(cuenta))
     elif int(inputs[0]) == 4:
-        tag_name = input("Ingrese el nombre del 'tag': ")
-        country_name = input("Ingrese el nombre del pais: ")
-        n_videos =  int(input("Ingrese el numero top de videos que desea: "))
+        tag_name = input("Ingrese el nombre del 'tag': ").lower()
+        country_name = input("Ingrese el nombre del pais: ").title()
+        n_videos = int(input("Ingrese el numero top de videos que desea: "))
         videosByCountry = controller.getVidsByCountry(catalog, country_name)
-        if videosByCountry is not None:
+        if videosByCountry is None:
+            print(f"El pais {country_name} no se encontró")
+        else:
             videosByTag = controller.getVidsByTag(videosByCountry, tag_name)
-            videosByViews = controller.sortVideosByLikes(videosByTag)
-            counter = 1
-        while counter <= n_videos:
-            video = lt.getElement(videosByViews, counter)
-            print('\n' +
-                  'title: ' + video['title'],
-                  'channel_title: ' + video['channel_title'],
-                  'publish_time: ' + video['publish_time'],
-                  'views: ' + video['views'],
-                  'likes: ' + video['likes'],
-                  'dislikes: ' + video['dislikes'],
-                  'tags: ' + video['tags'] + '/n'
-                  )
-            counter += 1
+            if videosByTag is None:
+                print(f"El tag {tag_name} no se encontró en la lista del pais")
+            else:
+                videosUniques = controller.videoUniques(videosByTag)
+                videosByLikes = controller.sortVideosByLikes(videosUniques)
+                counter = 1
+                while counter <= n_videos:
+                    video = lt.getElement(videosByLikes, counter)
+                    print("#" + str(counter),
+                          'title: ' + video['title'], '\n',
+                          'channel_title: ' + video['channel_title'], '\n',
+                          'publish_time: ' + video['publish_time'], '\n',
+                          'views: ' + video['views'], '\n',
+                          'likes: ' + video['likes'], '\n',
+                          'dislikes: ' + video['dislikes'], '\n',
+                          'tags: ' + video['tags'] + '\n')
+                    counter += 1
     else:
         sys.exit(0)
 sys.exit(0)

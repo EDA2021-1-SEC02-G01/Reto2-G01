@@ -92,7 +92,7 @@ def addVideo(catalog, video):
     # Se adiciona el video a la lista de videos
     lt.addLast(catalog['videos'], filtrado)
     addVideoCategory(catalog, filtrado)
-    country_name = video['country'].strip()
+    country_name = video['country'].strip().title()
     addVideoCountry(catalog, country_name, filtrado)
 
 
@@ -170,39 +170,52 @@ def getTrendVidByCountry(catalog, country_name):
     if existsCountry:
         entry = mp.get(countries, country_name)
         videoList = me.getValue(entry)
-
-        mg.sort(videoList, cmpVideosByTitle)
-        trendVids = lt.newList("ARRAY_LIST", cmpfunction=compareVideoName)
+        trendVids = mp.newMap(comparefunction=compareVideoName2)
         for video in lt.iterator(videoList):
-            vidName = video['title']
-            posVid = lt.isPresent(trendVids, vidName)
-            if posVid > 0:
-                el = lt.getElement(trendVids, posVid)
-                el['cuenta'] += 1
+            vidTitle = video['title']
+            existVid = mp.contains(trendVids, vidTitle)
+            if existVid:
+                entry = mp.get(trendVids, vidTitle)
+                videoUnique = me.getValue(entry)
+                videoUnique['cuenta'] += 1
             else:
-                lt.addLast(trendVids, {"info": video, "cuenta": 1})
-        sortedTrendVids = mg.sort(trendVids, cmpVideosByDays)
-        firstTrendVid = lt.firstElement(sortedTrendVids)
-        return firstTrendVid
+                mp.put(trendVids, vidTitle, {"info": video, "cuenta": 1})
+        trendVidList = mp.valueSet(trendVids)
+        mayorVideo = None
+        cuentaMayor = 0
+        for video in lt.iterator(trendVidList):
+            cuenta = video["cuenta"]
+            if cuenta > cuentaMayor:
+                mayorVideo = video["info"]
+                cuentaMayor = cuenta
+
+        return mayorVideo, cuentaMayor
     return None
 
 
 def getTrendVidByCategory(catalog, category_name):
     videoList = getVideosByCategory(catalog, category_name)
     if videoList is not None:
-        mg.sort(videoList, cmpVideosByTitle)
-        trendVids = lt.newList("ARRAY_LIST", cmpfunction=compareVideoName)
+        trendVids = mp.newMap(comparefunction=compareVideoName2)
         for video in lt.iterator(videoList):
-            vidName = video['title']
-            posVid = lt.isPresent(trendVids, vidName)
-            if posVid > 0:
-                el = lt.getElement(trendVids, posVid)
-                el['cuenta'] += 1
+            vidTitle = video['title']
+            existVid = mp.contains(trendVids, vidTitle)
+            if existVid:
+                entry = mp.get(trendVids, vidTitle)
+                videoUnique = me.getValue(entry)
+                videoUnique['cuenta'] += 1
             else:
-                lt.addLast(trendVids, {"info": video, "cuenta": 1})
-        sortedTrendVids = mg.sort(trendVids, cmpVideosByDays)
-        firstTrendVid = lt.firstElement(sortedTrendVids)
-        return firstTrendVid
+                mp.put(trendVids, vidTitle, {"info": video, "cuenta": 1})
+        trendVidList = mp.valueSet(trendVids)
+        mayorVideo = None
+        cuentaMayor = 0
+        for video in lt.iterator(trendVidList):
+            cuenta = video["cuenta"]
+            if cuenta > cuentaMayor:
+                mayorVideo = video["info"]
+                cuentaMayor = cuenta
+
+        return mayorVideo, cuentaMayor
     return None
 
 
@@ -241,7 +254,7 @@ def getVideosByCategory(catalog, categoryName):
         videos = category['videos']
         return videos
     return None
-    
+
 
 def getVidsByCountry(catalog, country_name):
     entry = mp.get(catalog['countries'], country_name)
@@ -256,7 +269,7 @@ def getVidsByTag(country_list, tag_name):
         if tag_name.lower() in lista:
             lt.addLast(tag_list, video)
     return tag_list
-    
+
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 
@@ -268,8 +281,14 @@ def cmpVideosByDays(video1, video2):
     return video1['cuenta'] > video2['cuenta']
 
 
-def compareVideoName(videoname1, video):
-    if (videoname1.lower() in video['info']['title'].lower()):
+def compareVideoName1(videoname1, video):
+    if (videoname1.lower() in video['value']['title'].lower()):
+        return 0
+    return -1
+
+
+def compareVideoName2(videoname1, video):
+    if (videoname1.lower() in video['value']['info']['title'].lower()):
         return 0
     return -1
 
@@ -340,3 +359,18 @@ def sortCountry(catalog, category_name, country_name):
         return country_list
     return None
 
+
+def videoUniques(videos):
+    uniqueVideos = mp.newMap(comparefunction=compareVideoName1)
+    for video in lt.iterator(videos):
+        vidTitle = video['title']
+        existVid = mp.contains(uniqueVideos, vidTitle)
+        if existVid:
+            entry = mp.get(uniqueVideos, vidTitle)
+            videoUnique = me.getValue(entry)
+            if int(video['likes']) > int(videoUnique['likes']):
+                mp.put(uniqueVideos, vidTitle, video)
+        else:
+            mp.put(uniqueVideos, vidTitle, video)
+    uniqueVideosList = mp.valueSet(uniqueVideos)
+    return uniqueVideosList
