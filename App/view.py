@@ -37,10 +37,13 @@ operación solicitada
 
 def printMenu():
     print("Bienvenido")
-    print("1- Cargar información en el catálogo")
-    print("2- Los n videos con más LIKES en un pais" +
+    print("0- Cargar información en el catálogo")
+    print("1- Los n videos con más LIKES en un pais" +
           " una categoría específica")
-    print("0- Salir")
+    print("2- (REQ 2)")
+    print("3- (REQ 3)")
+    print("4- (REQ 4)")
+    print("5- Salir")
 
 
 def initCatalog(LoadFactor, TypeMap):
@@ -66,15 +69,18 @@ Menu principal
 while True:
     printMenu()
     inputs = input('Seleccione una opción para continuar\n')
-    if int(inputs[0]) == 1:
+    if int(inputs[0]) == 0:
         print("Cargando información de los archivos ....")
-        LoadFactor = float(input("Ingrese el factor de carga con el que quiere cargar los videos: "))
-        TypeMap = input("Ingrese el tipo de mapa con el que quiere cargar los datos: ")
+        LoadFactor = float(input("Ingrese el factor de carga con " +
+                                 "el que quiere cargar los videos: "))
+        TypeMap = input("Ingrese el tipo de mapa con el que quiere " +
+                        "cargar los datos: ").upper()
         catalog = initCatalog(LoadFactor, TypeMap)
         answer = loadData(catalog)
         print('Videos cargados: ' + str(lt.size(catalog['videos'])))
         print('Categorias cargadas: ' + str(lt.size(catalog['categories'])))
         print('lista categorias: ' + str(lt.size(catalog['category_ids'])))
+        print('Paises cargados: ' + str(lt.size(catalog['countries'])))
         first_video = lt.firstElement(catalog['videos'])
         print('Titulo: ' + first_video['title'] +
               ', Canal: ' + first_video['channel_title'] +
@@ -87,11 +93,13 @@ while True:
         print("Tiempo [ms]: ", f"{answer[0]:.3f}", "  ||  ",
               "Memoria [kB]: ", f"{answer[1]:.3f}")
         print("\n")
-    elif int(inputs[0]) == 2:
+    elif int(inputs[0]) == 1:
         category_name = input("Ingrese el nombre de la categoria: ").title()
-        country_name = input("Ingrese el nombre del pais: ")
+        country_name = input("Ingrese el nombre del pais: ").title()
         nVideos = int(input("Ingrese el top de videos que desea: "))
-        listCountryCat = controller.sortCountry(catalog, category_name, country_name)
+        listCountryCat = controller.sortCountry(catalog,
+                                                category_name,
+                                                country_name)
         if listCountryCat is None:
             print(f"El pais {country_name} no existe")
         else:
@@ -111,6 +119,29 @@ while True:
                       )
                 print("\n")
                 i += 1
+    elif int(inputs[0]) == 2:
+        country_name = input("Ingrese el nombre del pais: ").title()
+        trendVid = controller.getTrendVidByCountry(catalog,
+                                                   country_name).title()
+        trendInfo = trendVid['info']
+        cuenta = trendVid['cuenta']
+        print("Title: " + trendInfo['title'])
+        print("Channel Title" + trendInfo['channel_title'])
+        print("Country: " + trendInfo['country'])
+        print("Numero de dias en tendencia: " + str(cuenta))
+    elif int(inputs[0]) == 3:
+        category_name = input("Ingrese el nombre de la categoria: ").title()
+        trendVid = controller.getTrendVidByCategory(catalog, category_name)
+        if trendVid is not None:
+            trendInfo = trendVid['info']
+            cuenta = trendVid['cuenta']
+            print("Title: " + trendInfo['title'])
+            print("Channel Title" + trendInfo['channel_title'])
+            print("Country: " + trendInfo['category_id'])
+            print("Numero de dias en tendencia: " + str(cuenta))
+        else:
+            print(f"La categoria {category_name}" +
+                  " no se encontró en el catálogo")
     else:
         sys.exit(0)
 sys.exit(0)

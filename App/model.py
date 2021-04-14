@@ -63,7 +63,13 @@ def newCatalog(LoadFactor, TypeMap):
                                         maptype=TypeMap,
                                         loadfactor=LoadFactor,
                                         comparefunction=cmpCategoriesByName)
-
+    """
+    Este indice crea un map cuya llave es el pais del video
+    """
+    catalog['countries'] = mp.newMap(22,
+                                     maptype=TypeMap,
+                                     loadfactor=LoadFactor,
+                                     comparefunction=cmpCategoriesByName)
     return catalog
 
 
@@ -79,24 +85,25 @@ def addVideo(catalog, video):
                 'views': video['views'],
                 'likes': video['likes'].strip(),
                 'dislikes': video['dislikes'].strip(),
-                'country': video['country'].strip(),
+                'country': video['country'].strip().title(),
                 'tags': video['tags'].strip(),
                 'category_id': video['category_id'].strip()}
     # Se adiciona el video a la lista de videos
     lt.addLast(catalog['videos'], filtrado)
     addVideoCategory(catalog, filtrado)
+    country_name = video['country'].strip()
+    addVideoCountry(catalog, country_name, filtrado)
 
 
 def addVideoCategory(catalog, video):
     try:
         categories = catalog['categories']
         if (video['category_id'] != ''):
-            categoryId = video['category_id']
-            categoryId = int(float(categoryId))
+            categoryId = int(float(video['category_id']))
         else:
             categoryId = 0
-        existyear = mp.contains(categories, categoryId)
-        if existyear:
+        categoryExists = mp.contains(categories, categoryId)
+        if categoryExists:
             entry = mp.get(categories, categoryId)
             category = me.getValue(entry)
         else:
@@ -106,6 +113,21 @@ def addVideoCategory(catalog, video):
         category['total_videos'] += 1
     except Exception:
         return None
+
+
+def addVideoCountry(catalog, country_name, video):
+    """
+    Adiciona un pais al map de paises, el cual guarda referencias
+    a los videos que tienen ese pais
+    """
+    countries = catalog['countries']
+    existscountry = mp.contains(countries, country_name)
+    if not existscountry:
+        countryVidLst = lt.newList('ARRAY_LIST')
+        mp.put(countries, country_name, countryVidLst)
+    entry = mp.get(countries, country_name)
+    videolst = me.getValue(entry)
+    lt.addLast(videolst, video)
 
 
 def addCategory(catalog, category):
@@ -133,13 +155,55 @@ def newCategory(id, name):
                 'category_id': '',
                 'total_videos': 0,
                 'videos': None}
-    category['name'] = name
+    category['name'] = name.title()
     category['category_id'] = id
     category['videos'] = lt.newList("ARRAY_LIST")
     return category
 
 
 # Funciones de consulta
+
+def getTrendVidByCountry(catalog, country_name):
+    countries = catalog['countries']
+    existsCountry = mp.contains(countries, country_name)
+    if existsCountry:
+        entry = mp.get(countries, country_name)
+        videoList = me.getValue(entry)
+
+        mg.sort(videoList, cmpVideosByTitle)
+        trendVids = lt.newList("ARRAY_LIST", cmpfunction=compareVideoName)
+        for video in lt.iterator(videoList):
+            vidName = video['title']
+            posVid = lt.isPresent(trendVids, vidName)
+            if posVid > 0:
+                el = lt.getElement(trendVids, posVid)
+                el['cuenta'] += 1
+            else:
+                lt.addLast(trendVids, {"info": video, "cuenta": 1})
+        sortedTrendVids = mg.sort(trendVids, cmpVideosByDays)
+        firstTrendVid = lt.firstElement(sortedTrendVids)
+        return firstTrendVid
+    return None
+
+
+def getTrendVidByCategory(catalog, category_name):
+    videoList = getVideosByCategory(catalog, category_name)
+    if videoList is not None:
+        mg.sort(videoList, cmpVideosByTitle)
+        trendVids = lt.newList("ARRAY_LIST", cmpfunction=compareVideoName)
+        for video in lt.iterator(videoList):
+            vidName = video['title']
+            posVid = lt.isPresent(trendVids, vidName)
+            if posVid > 0:
+                el = lt.getElement(trendVids, posVid)
+                el['cuenta'] += 1
+            else:
+                lt.addLast(trendVids, {"info": video, "cuenta": 1})
+        sortedTrendVids = mg.sort(trendVids, cmpVideosByDays)
+        firstTrendVid = lt.firstElement(sortedTrendVids)
+        return firstTrendVid
+    return None
+
 
 def getCategoryById(catalog, categoryId):
     categoryExists = mp.contains(catalog["categories"], categoryId)
@@ -162,15 +226,35 @@ def getCategoryIdByName(catalog, categoryName):
 
 
 def getVideosByCategory(catalog, categoryName):
-    idVideo = getCategoryIdByName(catalog, categoryName)
-    if idVideo != None:
-        category = getCategoryById(catalog, idVideo)
+    categoryId = getCategoryIdByName(catalog, categoryName)
+    if categoryId is not None:
+        category = getCategoryById(catalog, categoryId)
         videos = category['videos']
         return videos
     return None
 
 
 # Funciones utilizadas para comparar elementos dentro de una lista
+
+def cmpVideosByDays(video1, video2):
+    """
+    Devuelve True si los dias que estuvo en trend el video 1 son mayores
+    que los del video2
+    """
+    return video1['cuenta'] > video2['cuenta']
+
+
+def compareVideoName(videoname1, video):
+    if (videoname1.lower() in video['info']['title'].lower()):
+        return 0
+    return -1
+
+
+def comparecountries(countryname1, country):
+    if (countryname1.lower() in country['name'].lower()):
+        return 0
+    return -1
+
 
 def cmpCategoriesById(categoryId, category):
     if int(categoryId) == int(category['value']['category_id']):
@@ -193,6 +277,10 @@ def cmpVideosByViews(video1, video2):
     video2: informacion del segundo video que incluye su valor 'views'
     """
     return int(video1['views']) > int(video2['views'])
+
+
+def cmpVideosByTitle(video1, video2):
+    return video1['title'] < video2['title']
 
 
 # Funciones de ordenamiento

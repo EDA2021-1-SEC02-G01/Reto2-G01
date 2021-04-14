@@ -117,6 +117,21 @@ def getCategoryByName(catalog, categoryName):
     return model.getCategoryByName(catalog, categoryName)
 
 
+def getTrendVidByCountry(catalog, country_name):
+    """
+    Busca el video que más días ha sido tendencia
+    para un pais especifico
+    """
+    return model.getTrendVidByCountry(catalog, country_name)
+
+
+def getTrendVidByCategory(catalog, category_name):
+    """
+    Busca el video que más días ha sido tendencia
+    para una categoria especifica
+    """
+    return model.getTrendVidByCategory(catalog, category_name)
+
 # ======================================
 # Funciones para medir tiempo y memoria
 # ======================================
