@@ -20,6 +20,8 @@
  * along withthis program.  If not, see <http://www.gnu.org/licenses/>.
  """
 
+import time
+import tracemalloc
 import config as cf
 import sys
 import controller
@@ -80,9 +82,10 @@ while True:
                         "cargar los datos: ").upper()
         catalog = initCatalog(LoadFactor, TypeMap)
         answer = loadData(catalog)
+        print("\n")
         print('Videos cargados: ' + str(lt.size(catalog['videos'])))
         print('Categorias cargadas: ' + str(lt.size(catalog['categories'])))
-        print('lista categorias: ' + str(lt.size(catalog['category_ids'])))
+        print('Lista categorias: ' + str(lt.size(catalog['category_ids'])))
         print('Paises cargados: ' + str(lt.size(catalog['countries'])))
         first_video = lt.firstElement(catalog['videos'])
         print('Titulo: ' + first_video['title'] +
@@ -96,7 +99,15 @@ while True:
         print("Tiempo [ms]: ", f"{answer[0]:.3f}", "  ||  ",
               "Memoria [kB]: ", f"{answer[1]:.3f}")
         print("\n")
+
     elif int(inputs[0]) == 1:
+        # toma de tiempo y memoria
+        delta_time = -1.0
+        delta_memory = -1.0
+        tracemalloc.start()
+        start_time = controller.getTime()
+        start_memory = controller.getMemory()
+        # toma de tiempo y memoria
         category_name = input("Ingrese el nombre de la categoria: ").title()
         country_name = input("Ingrese el nombre del pais: ").title()
         nVideos = int(input("Ingrese el top de videos que desea: "))
@@ -122,7 +133,25 @@ while True:
                       )
                 print("\n")
                 i += 1
+        # toma de tiempo y memoria
+        stop_memory = controller.getMemory()
+        stop_time = controller.getTime()
+        tracemalloc.stop()
+        delta_time = stop_time - start_time
+        delta_memory = controller.deltaMemory(start_memory, stop_memory)
+        # toma de tiempo y memoria 
+        print("Tiempo [ms]: " + str(round(delta_time, 3)), "  ||  ",
+              "Memoria [kB]: ", str(round(delta_memory, 3)))
+        print("\n")
+
     elif int(inputs[0]) == 2:
+        # toma de tiempo y memoria
+        delta_time = -1.0
+        delta_memory = -1.0
+        tracemalloc.start()
+        start_time = controller.getTime()
+        start_memory = controller.getMemory()
+        # toma de tiempo y memoria
         country_name = input("Ingrese el nombre del pais: ").title()
         trendVid = controller.getTrendVidByCountry(catalog,
                                                    country_name)
@@ -134,7 +163,26 @@ while True:
                   "Channel Title" + trendInfo['channel_title'] + ",",
                   "Country: " + trendInfo['country'] + ",",
                   "Numero de dias en tendencia: " + str(cuenta))
+        # toma de tiempo y memoria
+        stop_memory = controller.getMemory()
+        stop_time = controller.getTime()
+        tracemalloc.stop()
+        delta_time = stop_time - start_time
+        delta_memory = controller.deltaMemory(start_memory, stop_memory)
+        # toma de tiempo y memoria 
+        print("\n")
+        print("Tiempo [ms]: " + str(round(delta_time, 3)), "  ||  ",
+              "Memoria [kB]: ", str(round(delta_memory, 3)))
+        print("\n")
+
     elif int(inputs[0]) == 3:
+        # toma de tiempo y memoria
+        delta_time = -1.0
+        delta_memory = -1.0
+        tracemalloc.start()
+        start_time = controller.getTime()
+        start_memory = controller.getMemory()
+        # toma de tiempo y memoria
         category_name = input("Ingrese el nombre de la categoria: ").title()
         trendVid = controller.getTrendVidByCategory(catalog, category_name)
         if trendVid is None:
@@ -146,7 +194,26 @@ while True:
                   "Channel Title" + trendInfo['channel_title'] + ",",
                   "Category: " + trendInfo['category_id'] + ",",
                   "Numero de dias en tendencia: " + str(cuenta))
+        # toma de tiempo y memoria
+        stop_memory = controller.getMemory()
+        stop_time = controller.getTime()
+        tracemalloc.stop()
+        delta_time = stop_time - start_time
+        delta_memory = controller.deltaMemory(start_memory, stop_memory)
+        # toma de tiempo y memoria 
+        print("\n")
+        print("Tiempo [ms]: " + str(round(delta_time, 3)), "  ||  ",
+              "Memoria [kB]: ", str(round(delta_memory, 3)))
+        print("\n")
+
     elif int(inputs[0]) == 4:
+        # toma de tiempo y memoria
+        delta_time = -1.0
+        delta_memory = -1.0
+        tracemalloc.start()
+        start_time = controller.getTime()
+        start_memory = controller.getMemory()
+        # toma de tiempo y memoria
         tag_name = input("Ingrese el nombre del 'tag': ").lower()
         country_name = input("Ingrese el nombre del pais: ").title()
         n_videos = int(input("Ingrese el numero top de videos que desea: "))
@@ -172,6 +239,17 @@ while True:
                           'dislikes: ' + video['dislikes'], '\n',
                           'tags: ' + video['tags'] + '\n')
                     counter += 1
+        print("\n")
+        # toma de tiempo y memoria
+        stop_memory = controller.getMemory()
+        stop_time = controller.getTime()
+        tracemalloc.stop()
+        delta_time = stop_time - start_time
+        delta_memory = controller.deltaMemory(start_memory, stop_memory)
+        # toma de tiempo y memoria 
+        print("Tiempo [ms]: " + str(round(delta_time, 3)), "  ||  ",
+              "Memoria [kB]: ", str(round(delta_memory, 3)))
+        print("\n")
     else:
         sys.exit(0)
 sys.exit(0)
